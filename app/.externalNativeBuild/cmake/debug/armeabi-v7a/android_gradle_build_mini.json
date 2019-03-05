@@ -1,0 +1,16 @@
+{
+  "buildFiles": [
+    "D:\\Datos\\Documents\\Proyectos\\fic\\FicPrototype\\app\\CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "C:\\Users\\Pedro\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Datos\\Documents\\Proyectos\\fic\\FicPrototype\\app\\.externalNativeBuild\\cmake\\debug\\armeabi-v7a --target clean"
+  ],
+  "libraries": {
+    "native-lib-Debug-armeabi-v7a": {
+      "artifactName": "native-lib",
+      "buildCommand": "C:\\Users\\Pedro\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Datos\\Documents\\Proyectos\\fic\\FicPrototype\\app\\.externalNativeBuild\\cmake\\debug\\armeabi-v7a --target native-lib",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Datos\\Documents\\Proyectos\\fic\\FicPrototype\\app\\build\\intermediates\\cmake\\debug\\obj\\armeabi-v7a\\libnative-lib.so"
+    }
+  }
+}
