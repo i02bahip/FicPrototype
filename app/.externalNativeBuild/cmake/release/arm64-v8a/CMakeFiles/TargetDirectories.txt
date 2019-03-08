@@ -1,3 +1,0 @@
-D:/Datos/Documents/Proyectos/fic/FicPrototype/app/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/native-lib.dir
-D:/Datos/Documents/Proyectos/fic/FicPrototype/app/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/edit_cache.dir
-D:/Datos/Documents/Proyectos/fic/FicPrototype/app/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/rebuild_cache.dir
