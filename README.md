@@ -1,1 +1,1 @@
-FicV1
+FicPrototype
