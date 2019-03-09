@@ -142,9 +142,9 @@ static void *app_function (void *userdata) {
 
   /* Build pipeline */
     
-    data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, packetization-mode=(string)1, profile-level-id=(string)42c01f, payload=(int)96, ssrc=(uint)2166965150, timestamp-offset=(uint)2545511794, seqnum-offset=(uint)28567,a-framerate=(string)30 ! rtpmp2tdepay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
-   //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtpmp2tdepay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
-   // data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
+  // data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, packetization-mode=(string)1, profile-level-id=(string)42c01f, payload=(int)96, ssrc=(uint)2166965150, timestamp-offset=(uint)2545511794, seqnum-offset=(uint)28567,a-framerate=(string)30 ! rtpmp2tdepay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
+  //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtpmp2tdepay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
+  data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
   //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp,encoding-name=H265,a-framerate=(string)30 ! rtph265depay ! h265parse ! avdec_h265 ! autovideosink sync=false", &error);
   //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)JPEG, a-framerate=(string)30, payload=(int)26 ! rtpjpegdepay ! jpegdec ! videoflip method=rotate-180 ! autovideosink", &error);
 
