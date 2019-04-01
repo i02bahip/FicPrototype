@@ -141,14 +141,25 @@ static void *app_function (void *userdata) {
   g_main_context_push_thread_default(data->context);
 
   /* Build pipeline */
-    
-  // data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, packetization-mode=(string)1, profile-level-id=(string)42c01f, payload=(int)96, ssrc=(uint)2166965150, timestamp-offset=(uint)2545511794, seqnum-offset=(uint)28567,a-framerate=(string)30 ! rtpmp2tdepay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
-  //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtpmp2tdepay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
-  data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
-  //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp,encoding-name=H265,a-framerate=(string)30 ! rtph265depay ! h265parse ! avdec_h265 ! autovideosink sync=false", &error);
+  //AUDIO
+  //data->pipeline = gst_parse_launch("udpsrc port=5002 ! audio/mpeg, mpegversion=(int)4, channels=(int)2, rate=(int)44100, level=(string)2, base-profile=(string)lc, profile=(string)lc, stream-format=(string)raw, codec_data=(buffer)1210, framed=(boolean)true ! queue ! aacparse ! faad ! audioconvert ! audioresample ! autoaudiosink sync=false", &error);
+  //  data->pipeline = gst_parse_launch("playbin", &error);
+  //JPEG
   //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)JPEG, a-framerate=(string)30, payload=(int)26 ! rtpjpegdepay ! jpegdec ! videoflip method=rotate-180 ! autovideosink", &error);
+  //H264
+  //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264,a-framerate=(string)30 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false", &error);
+  //H264 + AUDIO
+  //data->pipeline = gst_parse_launch("udpsrc port=5000 ! tsparse ! decodebin name=dec ! videoconvert ! videoflip method=rotate-180 ! autovideosink sync=true dec. ! queue ! audioconvert ! audioresample ! autoaudiosink sync=true", &error);
 
-    //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! videoflip method=rotate-180 ! autovideosink", &error);
+  //H265?
+  //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp,encoding-name=H265,a-framerate=(string)30 ! rtph265depay ! h265parse ! avdec_h265 ! autovideosink sync=false", &error);
+
+  //VIDEO + AUDIO 2 PORTS
+  data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=video, clock-rate=90000, encoding-name=H264 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false udpsrc port=5002 ! audio/mpeg, mpegversion=4, channels=2, rate=44100, level=2, base-profile=lc, profile=lc, stream-format=raw, framed=true ! faad ! audioconvert ! audioresample ! autoaudiosink sync=false", &error);
+
+  // SEND AUDIO
+   // data->pipeline = gst_parse_launch("openslessrc ! audioconvert ! audioresample ! voaacenc ! aacparse ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
+
   //data->pipeline = gst_parse_launch("videotestsrc ! warptv ! videoconvert ! autovideosink", &error);
   if (error) {
     gchar *message = g_strdup_printf("Unable to build pipeline: %s", error->message);
@@ -195,6 +206,182 @@ static void *app_function (void *userdata) {
   return NULL;
 }
 
+/* Main method for the native code. This is executed on its own thread. */
+static void *app_function_DOS (void *userdata) {
+    JavaVMAttachArgs args;
+    GstBus *bus;
+    CustomData *data = (CustomData *)userdata;
+    GSource *bus_source;
+    GError *error = NULL;
+
+    GST_DEBUG ("Creating pipeline in CustomData at %p", data);
+
+    /* Create our own GLib Main Context and make it the default one */
+    data->context = g_main_context_new ();
+    g_main_context_push_thread_default(data->context);
+
+    /* Build pipeline */
+ //   data->pipeline = gst_parse_launch("udpsrc port=5002 ! audio/mpeg, mpegversion=4, channels=2, rate=44100, level=2, base-profile=lc, profile=lc, stream-format=raw, framed=true ! faad ! audioconvert ! audioresample ! autoaudiosink sync=false", &error);
+    data->pipeline = gst_parse_launch("openslessrc ! audioconvert ! audioresample ! voaacenc ! aacparse ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
+   // data->pipeline = gst_parse_launch("openslessrc ! audioconvert  ! audio/x-raw, channels=1, rate=44100 ! rtpL16pay ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
+
+    //AUDIO
+    //data->pipeline = gst_parse_launch("udpsrc port=5002 ! application/x-rtp, media=audio, clock-rate=8000, encoding-name=PCMU ! queue ! rtppcmudepay ! mulawdec ! audioconvert ! audioresample ! autoaudiosink", &error);
+
+    if (error) {
+        gchar *message = g_strdup_printf("Unable to build pipeline: %s", error->message);
+        g_clear_error (&error);
+        g_free (message);
+        return NULL;
+    }
+
+    /* Instruct the bus to emit signals for each received message, and connect to the interesting signals */
+    bus = gst_element_get_bus (data->pipeline);
+    bus_source = gst_bus_create_watch (bus);
+    g_source_set_callback (bus_source, (GSourceFunc) gst_bus_async_signal_func, NULL, NULL);
+    g_source_attach (bus_source, data->context);
+    g_source_unref (bus_source);
+    g_signal_connect (G_OBJECT (bus), "message::error", (GCallback)error_cb, data);
+    g_signal_connect (G_OBJECT (bus), "message::state-changed", (GCallback)state_changed_cb, data);
+    gst_object_unref (bus);
+
+    /* Create a GLib Main Loop and set it to run */
+    GST_DEBUG ("Entering main loop... (CustomData:%p)", data);
+    data->main_loop = g_main_loop_new (data->context, FALSE);
+    check_initialization_complete (data);
+    g_main_loop_run (data->main_loop);
+    GST_DEBUG ("Exited main loop");
+    g_main_loop_unref (data->main_loop);
+    data->main_loop = NULL;
+
+    /* Free resources */
+    g_main_context_pop_thread_default(data->context);
+    g_main_context_unref (data->context);
+    gst_element_set_state (data->pipeline, GST_STATE_NULL);
+    gst_object_unref (data->pipeline);
+
+    return NULL;
+}
+
+
+
+/*----------------------------
+static void *app_function_DOS (void *userdata) {
+    JavaVMAttachArgs args;
+    GstBus *bus;
+    CustomData *data = (CustomData *)userdata;
+    GSource *bus_source;
+    GError *error = NULL;
+
+    GST_DEBUG ("Creating pipeline in CustomData at %p", data);
+
+    data->context = g_main_context_new ();
+    g_main_context_push_thread_default(data->context);
+
+    //   data->pipeline = gst_parse_launch("udpsrc port=5002 ! audio/mpeg, mpegversion=4, channels=2, rate=44100, level=2, base-profile=lc, profile=lc, stream-format=raw, framed=true ! faad ! audioconvert ! audioresample ! autoaudiosink sync=false", &error);
+    data->pipeline = gst_parse_launch("openslessrc ! audioconvert ! audioresample ! voaacenc ! aacparse ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
+    // data->pipeline = gst_parse_launch("openslessrc ! audioconvert  ! audio/x-raw, channels=1, rate=44100 ! rtpL16pay ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
+
+    //AUDIO
+    //data->pipeline = gst_parse_launch("udpsrc port=5002 ! application/x-rtp, media=audio, clock-rate=8000, encoding-name=PCMU ! queue ! rtppcmudepay ! mulawdec ! audioconvert ! audioresample ! autoaudiosink", &error);
+
+    if (error) {
+        gchar *message = g_strdup_printf("Unable to build pipeline: %s", error->message);
+        g_clear_error (&error);
+        g_free (message);
+        return NULL;
+    }
+    bus = gst_element_get_bus (data->pipeline);
+    bus_source = gst_bus_create_watch (bus);
+    g_source_set_callback (bus_source, (GSourceFunc) gst_bus_async_signal_func, NULL, NULL);
+    g_source_attach (bus_source, data->context);
+    g_source_unref (bus_source);
+    g_signal_connect (G_OBJECT (bus), "message::error", (GCallback)error_cb, data);
+    g_signal_connect (G_OBJECT (bus), "message::state-changed", (GCallback)state_changed_cb, data);
+    gst_object_unref (bus);
+
+    GST_DEBUG ("Entering main loop... (CustomData:%p)", data);
+    data->main_loop = g_main_loop_new (data->context, FALSE);
+    check_initialization_complete (data);
+    g_main_loop_run (data->main_loop);
+    GST_DEBUG ("Exited main loop");
+    g_main_loop_unref (data->main_loop);
+    data->main_loop = NULL;
+
+    g_main_context_pop_thread_default(data->context);
+    g_main_context_unref (data->context);
+    gst_element_set_state (data->pipeline, GST_STATE_NULL);
+    gst_object_unref (data->pipeline);
+
+    return NULL;
+}
+
+*/
+
+
+/* Main method for the native code. This is executed on its own thread. */
+static void *app_function2 (void *userdata) {
+    JavaVMAttachArgs args;
+    GstBus *bus;
+    CustomData *data = (CustomData *)userdata;
+    GSource *timeout_source;
+    GSource *bus_source;
+    GError *error = NULL;
+    guint flags;
+
+    GST_DEBUG ("Creating pipeline in CustomData at %p", data);
+
+    /* Create our own GLib Main Context and make it the default one */
+    data->context = g_main_context_new ();
+    g_main_context_push_thread_default(data->context);
+
+    /* Build pipeline */
+    data->pipeline = gst_parse_launch("playbin", &error);
+    if (error) {
+        gchar *message = g_strdup_printf("Unable to build pipeline: %s", error->message);
+        g_clear_error (&error);
+        g_free (message);
+        return NULL;
+    }
+
+    /* Disable subtitles */
+    g_object_get (data->pipeline, "flags", &flags, NULL);
+    g_object_set (data->pipeline, "flags", flags, NULL);
+
+    /* Set the pipeline to READY, so it can already accept a window handle, if we have one */
+    gst_element_set_state(data->pipeline, GST_STATE_READY);
+
+    /* Instruct the bus to emit signals for each received message, and connect to the interesting signals */
+    bus = gst_element_get_bus (data->pipeline);
+    bus_source = gst_bus_create_watch (bus);
+    g_source_set_callback (bus_source, (GSourceFunc) gst_bus_async_signal_func, NULL, NULL);
+    g_source_attach (bus_source, data->context);
+    g_source_unref (bus_source);
+    gst_object_unref (bus);
+
+    /* Register a function that GLib will call 4 times per second */
+    timeout_source = g_timeout_source_new (250);
+    g_source_attach (timeout_source, data->context);
+    g_source_unref (timeout_source);
+
+    /* Create a GLib Main Loop and set it to run */
+    GST_DEBUG ("Entering main loop... (CustomData:%p)", data);
+    data->main_loop = g_main_loop_new (data->context, FALSE);
+    check_initialization_complete (data);
+    g_main_loop_run (data->main_loop);
+    GST_DEBUG ("Exited main loop");
+    g_main_loop_unref (data->main_loop);
+    data->main_loop = NULL;
+
+    /* Free resources */
+    g_main_context_pop_thread_default(data->context);
+    g_main_context_unref (data->context);
+    gst_element_set_state (data->pipeline, GST_STATE_NULL);
+    gst_object_unref (data->pipeline);
+
+    return NULL;
+}
+
 /*
  * Java Bindings
  */
@@ -209,6 +396,7 @@ static void gst_native_init (JNIEnv* env, jobject thiz) {
   data->app = (*env)->NewGlobalRef (env, thiz);
   GST_DEBUG ("Created GlobalRef for app object at %p", data->app);
   pthread_create (&gst_app_thread, NULL, &app_function, data);
+  pthread_create (&gst_app_thread, NULL, &app_function_DOS, data);
 }
 
 /* Quit the main loop, remove the native thread and free resources */
