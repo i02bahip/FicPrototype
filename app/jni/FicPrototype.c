@@ -155,7 +155,7 @@ static void *app_function (void *userdata) {
   //data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp,encoding-name=H265,a-framerate=(string)30 ! rtph265depay ! h265parse ! avdec_h265 ! autovideosink sync=false", &error);
 
   //VIDEO + AUDIO 2 PORTS
-  data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=video, clock-rate=90000, encoding-name=H264 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false udpsrc port=5002 ! audio/mpeg, mpegversion=4, channels=2, rate=44100, level=2, base-profile=lc, profile=lc, stream-format=raw, framed=true ! faad ! audioconvert ! audioresample ! autoaudiosink sync=false", &error);
+  data->pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=video, clock-rate=90000, encoding-name=H264 ! rtph264depay ! h264parse ! avdec_h264 ! videoflip method=rotate-180 ! autovideosink sync=false udpsrc port=5002 ! audio/mpeg, mpegversion=4, channels=2, rate=11025, level=2, base-profile=lc, profile=lc, stream-format=raw, framed=true ! faad ! audioconvert ! audioresample ! autoaudiosink sync=false openslessrc ! audioconvert ! audioresample ! voaacenc ! aacparse ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
 
   // SEND AUDIO
    // data->pipeline = gst_parse_launch("openslessrc ! audioconvert ! audioresample ! voaacenc ! aacparse ! udpsink host=192.168.1.154 port=5004 sync=false", &error);
@@ -262,7 +262,6 @@ static void *app_function_DOS (void *userdata) {
 
     return NULL;
 }
-
 
 
 /*----------------------------
@@ -396,7 +395,6 @@ static void gst_native_init (JNIEnv* env, jobject thiz) {
   data->app = (*env)->NewGlobalRef (env, thiz);
   GST_DEBUG ("Created GlobalRef for app object at %p", data->app);
   pthread_create (&gst_app_thread, NULL, &app_function, data);
-  pthread_create (&gst_app_thread, NULL, &app_function_DOS, data);
 }
 
 /* Quit the main loop, remove the native thread and free resources */
