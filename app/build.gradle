@@ -50,6 +50,10 @@ android {
             path 'jni/Android.mk'
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 }
 
 dependencies {
@@ -66,4 +70,10 @@ dependencies {
     implementation 'com.google.android.exoplayer:extension-gvr:2.6.1'
     implementation 'com.google.vr:sdk-base:1.170.0'
     implementation 'com.google.vr:sdk-common:1.170.0'
+    implementation "net.java.dev.jna:jna:5.2.0"
+    implementation "org.freedesktop.gstreamer:gst1-java-core:0.9.4"
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.8'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
 }

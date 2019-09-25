@@ -24,7 +24,7 @@ public class MqttHelper {
     final String username = "Pc";
     final String password = "sodesuka";*/
 
-    final String serverUri = "tcp://192.168.1.139:1883";
+    final String serverUri = "tcp://pbh.sytes.net:1883";
 
     final String clientId = "FicClient";
     final String subscriptionTopic = "TEST";

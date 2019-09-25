@@ -25,6 +25,12 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.freedesktop.gstreamer.GStreamer;
+import org.freedesktop.gstreamer.Element.PAD_ADDED;
+import org.freedesktop.gstreamer.elements.WebRTCBin;
+import org.freedesktop.gstreamer.elements.WebRTCBin.CREATE_OFFER;
+import org.freedesktop.gstreamer.elements.WebRTCBin.ON_ICE_CANDIDATE;
+import org.freedesktop.gstreamer.elements.WebRTCBin.ON_NEGOTIATION_NEEDED;
+import org.freedesktop.gstreamer.elements.WebRTCBin.CREATE_ANSWER;
 
 import java.util.ArrayList;
 
@@ -45,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private MqttHelper mqttHelper;
 
     private Payload payload = new Payload();
+
+    private WebRTCBin webRTCBin;
 
 
     Gson gson = new Gson();
@@ -83,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             // Initialize GStreamer and warn if it fails
             try {
                 GStreamer.init(this);
+                webRTCBin = new WebRTCBin("sendrecv");
+                webRTCBin.setStunServer("stun:stun.services.mozilla.com");
+                webRTCBin.setStunServer("stun:stun.l.google.com:19302");
             } catch (Exception e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                 finish();
@@ -103,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
             rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+
             startMqtt();
         }
 
